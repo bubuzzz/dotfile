@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Aurora-Nuevo-Orange
+Comment=Easy On The Eyes Gnome Theme
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Aurora-Nuevo-Orange
+ButtonLayout=:minimize,maximize,close
