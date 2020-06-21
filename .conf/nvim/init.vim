@@ -10,12 +10,11 @@ Plug 'airblade/vim-gitgutter'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'haya14busa/incsearch.vim'
 Plug 'pangloss/vim-javascript'
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 Plug 'mhinz/vim-startify'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'editorconfig/editorconfig-vim'
-Plug 'benmills/vimux'
 Plug 'SirVer/ultisnips'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -24,7 +23,6 @@ Plug 'Shougo/neocomplcache.vim'
 Plug 'nvie/vim-flake8'
 Plug 'vim-syntastic/syntastic'
 Plug 'millermedeiros/vim-esformatter'
-Plug 'jebaum/vim-tmuxify'
 Plug 'hdima/python-syntax'
 Plug 'wavded/vim-stylus'
 Plug 'Shougo/unite.vim'
@@ -32,9 +30,11 @@ Plug 'Shougo/vimfiler.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'posva/vim-vue'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 " themes
 Plug 'morhetz/gruvbox'
 Plug 'tyrannicaltoucan/vim-deep-space'
+Plug 'Chiel92/vim-autoformat'
 
 call plug#end()
 
@@ -102,13 +102,7 @@ let g:gitgutter_enabled = 1
 " Kill the capslock when leaving insert mode.
 autocmd InsertLeave * set iminsert=0
 
-" JSBeautifier
-autocmd FileType jsx noremap <buffer> <c-f> :call JsxBeautify()<cr>
-autocmd FileType javascript noremap <buffer> <c-f> :call JsxBeautify()<cr>
-autocmd FileType json noremap <buffer> <c-f> :call JsonBeautify()<cr>
-autocmd FileType html noremap <buffer> <c-f> :call HtmlBeautify()<cr>
-
-autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
+nmap <c-f> <Plug>(PrettierAsync)
 
 "map shift enter to esc"
 imap <S-CR> <ESC>
@@ -162,9 +156,6 @@ let python_highlight_all = 1
 "----------------------/ Python Syntax ----------------------"
 
 let g:neocomplcache_enable_at_startup = 1
-
-let g:tmuxify_custom_command = 'tmux split-window -d'
-let g:tmuxify_map_prefix = '<leader>m'
 
 "-------------------syntastic --------------------"
 set statusline+=%#warningmsg#
@@ -251,6 +242,4 @@ hi VertSplit guibg=bg guifg=bg
 " Vim Align"
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
-
-
 
