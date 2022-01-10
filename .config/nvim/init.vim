@@ -19,10 +19,8 @@ Plug 'SirVer/ultisnips'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'mxw/vim-jsx'
-Plug 'Shougo/neocomplcache.vim'
 Plug 'nvie/vim-flake8'
 Plug 'vim-syntastic/syntastic'
-Plug 'millermedeiros/vim-esformatter'
 Plug 'hdima/python-syntax'
 Plug 'wavded/vim-stylus'
 Plug 'Shougo/unite.vim'
@@ -31,10 +29,13 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'posva/vim-vue'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'Chiel92/vim-autoformat'
+Plug 'nicwest/vim-http'
+Plug 'neovim/nvim-lspconfig'
+
 " themes
 Plug 'morhetz/gruvbox'
 Plug 'tyrannicaltoucan/vim-deep-space'
-Plug 'Chiel92/vim-autoformat'
 
 call plug#end()
 
@@ -45,7 +46,7 @@ set smarttab
 set expandtab
 set number                     " Show current line number
 set relativenumber             " Show relative line numbers
-" set listchars+=space:␣
+" set listchars+=space:‚ê£
 " set list
 
 " trim space when saving "
@@ -102,8 +103,6 @@ let g:gitgutter_enabled = 1
 " Kill the capslock when leaving insert mode.
 autocmd InsertLeave * set iminsert=0
 
-nmap <c-f> <Plug>(PrettierAsync)
-
 "map shift enter to esc"
 imap <S-CR> <ESC>
 
@@ -155,7 +154,6 @@ hi CursorLine term=bold cterm=bold guibg=NONE ctermbg=NONe
 let python_highlight_all = 1
 "----------------------/ Python Syntax ----------------------"
 
-let g:neocomplcache_enable_at_startup = 1
 
 "-------------------syntastic --------------------"
 set statusline+=%#warningmsg#
@@ -227,10 +225,10 @@ nmap <Leader>t :Files<CR>
 nmap <Leader>r :Tags<CR>
 nmap , :VimFilerExplore<CR>
 
-set fillchars=vert:│,fold:─
-let g:vimfiler_tree_leaf_icon = "⋮"
-let g:vimfiler_tree_opened_icon = "▼"
-let g:vimfiler_tree_closed_icon = "▷"
+set fillchars=vert:‚îÇ,fold:‚îÄ
+let g:vimfiler_tree_leaf_icon = "‚ãÆ"
+let g:vimfiler_tree_opened_icon = "‚ñº"
+let g:vimfiler_tree_closed_icon = "‚ñ∑"
 
 
 " remove the separator when splitting vim"
@@ -243,3 +241,62 @@ hi VertSplit guibg=bg guifg=bg
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
+
+" Run python
+autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python' shellescape(@%, 1)<CR>
+autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python' shellescape(@%, 1)<CR>
+
+
+" Vim Http
+let g:vim_http_split_vertically = 1
+let g:vim_http_tempbuffer = 1
+
+
+lua << EOF
+local nvim_lsp = require('lspconfig')
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  -- Enable completion triggered by <c-x><c-o>
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
+  buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+end
+
+-- Use a loop to conveniently call 'setup' on multiple servers and
+-- map buffer local keybindings when the language server attaches
+local servers = { 'pyright' }
+for _, lsp in ipairs(servers) do
+  nvim_lsp[lsp].setup {
+    on_attach = on_attach,
+    flags = {
+      debounce_text_changes = 150,
+    }
+  }
+end
+EOF
